@@ -8,7 +8,6 @@ import styled from 'styled-components';
 
 export const Game = () => {
   const API_URL = process.env.REACT_APP_URL_API;
-  // const gameType = 'people';
 
   const [countCards, setCountCards] = useState<number>(0);
   const [gameCount, setGameCount] = useState<number>(0);
@@ -18,6 +17,7 @@ export const Game = () => {
   const [cardPlayer, setCardPlayer] = useState<CardModel>();
   const [cardComputer, setCardComputer] = useState<CardModel>();
   const [gameType, setGameType] = useState<string>('people');
+  const [winner, setWinner] = useState<'computer' | 'player'>();
 
   useEffect(() => {
     axios
@@ -51,11 +51,15 @@ export const Game = () => {
   };
 
   const handleCompare = (playerPoints: number, computerPoints: number) => {
-    playerPoints === computerPoints
-      ? null
-      : playerPoints > computerPoints
-      ? setPointsPlayer((points) => points + 1)
-      : setPointsComputer((points) => points + 1);
+    if (playerPoints > computerPoints) {
+      setPointsPlayer((points) => points + 1);
+      setWinner('player');
+    } else if (playerPoints < computerPoints) {
+      setPointsComputer((points) => points + 1);
+      setWinner('computer');
+    } else {
+      setWinner(undefined);
+    }
   };
 
   const handlePlay = () => {
@@ -115,6 +119,7 @@ export const Game = () => {
     setLoading(false);
     setCardPlayer(undefined);
     setCardComputer(undefined);
+    setWinner(undefined);
   };
 
   return (
@@ -140,8 +145,14 @@ export const Game = () => {
       </Button>
       {cardPlayer && cardComputer && (
         <CardsWrapper>
-          <Card points={cardPlayer.points} name={cardPlayer.name} />
-          <Card points={cardComputer.points} name={cardComputer.name} />
+          <div>
+            <Card points={cardPlayer.points} name={cardPlayer.name} />
+            {winner === 'player' && <p>WIN</p>}
+          </div>
+          <div>
+            <Card points={cardComputer.points} name={cardComputer.name} />
+            {winner === 'computer' && <p>WIN</p>}
+          </div>
         </CardsWrapper>
       )}
     </StyledContainer>
