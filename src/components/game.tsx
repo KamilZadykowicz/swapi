@@ -63,23 +63,20 @@ export const Game = () => {
     setGameCount(gameCount + 1);
   };
 
+  const handleSetCard = (owner: 'player' | 'computer', card: CardModel) => {
+    owner === 'player' && setCardPlayer(card);
+    owner === 'computer' && setCardComputer(card);
+  };
+
   const handleDrawCard = (owner: 'player' | 'computer') => {
     const randomNumber = Math.floor(Math.random() * countCards + 1);
     gameType === 'people' &&
       axios
         .get<PersonModel>(`${API_URL}${gameType}/${randomNumber}`)
         .then((response) => {
-          owner === 'player'
-            ? isNaN(Number(response.data.mass))
-              ? handleDrawCard('player')
-              : setCardPlayer({
-                  name: response.data.name,
-                  points: +response.data.mass,
-                  gameCount: gameCount,
-                })
-            : isNaN(Number(response.data.mass))
-            ? handleDrawCard('computer')
-            : setCardComputer({
+          isNaN(Number(response.data.mass))
+            ? handleDrawCard(owner)
+            : handleSetCard(owner, {
                 name: response.data.name,
                 points: +response.data.mass,
                 gameCount: gameCount,
@@ -95,17 +92,9 @@ export const Game = () => {
       axios
         .get<StarshipModel>(`${API_URL}${gameType}/${randomNumber}`)
         .then((response) => {
-          owner === 'player'
-            ? isNaN(Number(response.data.crew))
-              ? handleDrawCard('player')
-              : setCardPlayer({
-                  name: response.data.name,
-                  points: +response.data.crew,
-                  gameCount: gameCount,
-                })
-            : isNaN(Number(response.data.crew))
-            ? handleDrawCard('computer')
-            : setCardComputer({
+          isNaN(Number(response.data.crew))
+            ? handleDrawCard(owner)
+            : handleSetCard(owner, {
                 name: response.data.name,
                 points: +response.data.crew,
                 gameCount: gameCount,
@@ -115,7 +104,7 @@ export const Game = () => {
           setLoading(false);
         })
         .catch((error) => {
-          console.log('ERROR');
+          handleDrawCard(owner);
         });
   };
 
@@ -124,6 +113,8 @@ export const Game = () => {
     setPointsComputer(0);
     setGameType('people');
     setLoading(false);
+    setCardPlayer(undefined);
+    setCardComputer(undefined);
   };
 
   return (
